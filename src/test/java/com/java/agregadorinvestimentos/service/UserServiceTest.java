@@ -1,11 +1,13 @@
 package com.java.agregadorinvestimentos.service;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,6 +36,9 @@ public class UserServiceTest {
 
     @Captor
     private ArgumentCaptor<User> userArgumentCaptor;
+
+    @Captor
+    private ArgumentCaptor<UUID> uuidArgumentCaptor;
 
     @Nested
     class createUser {
@@ -77,8 +82,60 @@ public class UserServiceTest {
             
             // Act & Assert
             assertThrows(RuntimeException.class, () -> userService.createUser(input));
-
-            
+           
         }
+    }
+
+    @Nested
+    class getUserById{
+        
+        
+        @Test
+        @DisplayName("Should get user by id with success when optiona is present")
+        void shouldGetUserByIdWithSuccessWhenOptionalIsPresent(){
+        
+
+            // Arrange
+            var user = new User(
+                UUID.randomUUID(),
+                "username",
+                "email@email.com",
+                "password",
+                Instant.now(),
+                null
+            );
+
+            doReturn(Optional.of(user)).when(userRepository).findById(uuidArgumentCaptor.capture());
+        
+             //Act
+
+            var output = userService.getUserById(user.getUserID().toString());
+
+            //Assert
+        
+            assertTrue(output.isPresent());
+            assertEquals(user.getUserID(), uuidArgumentCaptor.getValue());
+        }
+
+       @Test
+        @DisplayName("Should get user by id with success when optiona is empty")
+        void shouldGetUserByIdWithSuccessWhenOptionalIsEmpty(){
+        
+
+            // Arrange
+            var userId = UUID.randomUUID();
+
+            doReturn(Optional.empty()).when(userRepository).findById(uuidArgumentCaptor.capture());
+        
+             //Act
+
+            var output = userService.getUserById(userId.toString());
+
+            //Assert
+        
+            assertTrue(output.isEmpty());
+            assertEquals(userId, uuidArgumentCaptor.getValue());
+        }
+
     }
 }
