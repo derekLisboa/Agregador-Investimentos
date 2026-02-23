@@ -14,6 +14,8 @@ import com.java.agregadorinvestimentos.repository.UserRepository;
 
 @Service
 public class UserService {
+    
+
 
     private UserRepository userRepository; 
 
